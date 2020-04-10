@@ -8,7 +8,7 @@ async function withPolling(callback, interval) {
     if (!interval) return {data};
 
     const observableData = Vue.observable({data});
-
+    // let observableData = {...data};
     const poll = () => {
         setTimeout(async () => {
             observableData.data = {...(await callback())};

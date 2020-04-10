@@ -3,20 +3,20 @@
 </template>
 
 <script>
-import goodsService from "@/services/goods.service";
+
+//import { mapGetters } from "vuex";
+import { GET_CATEGORIES } from "@/store/actions/goods.actions"; // GET_DATA
 
 export default {
   name: 'GoodsList',
   data() {
     return {
-      categories: { data: {} },
-      pollData: { data: {} }
+      data: { data: {} }
     };
   },
   async created() {
-    this.categories = await goodsService.fetch();
-    const tempPollData = await goodsService.poll();
-    this.pollData =
+    await this.$store.dispatch(GET_CATEGORIES);
+    // await this.$store.dispatch(GET_DATA);
   }
 }
 </script>
