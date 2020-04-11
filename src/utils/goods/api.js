@@ -1,4 +1,4 @@
-import Vue from "vue";
+import Vue from 'vue'
 import endpoints from './endpoints';
 import apiService from '@/services/api.service';
 
@@ -8,7 +8,8 @@ async function withPolling(callback, interval) {
     if (!interval) return {data};
 
     const observableData = Vue.observable({data});
-    // let observableData = {...data};
+
+    Vue.prototype.$goodsList = observableData;
     const poll = () => {
         setTimeout(async () => {
             observableData.data = {...(await callback())};

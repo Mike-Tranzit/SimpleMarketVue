@@ -4,8 +4,8 @@
 
 <script>
 
-//import { mapGetters } from "vuex";
-import { GET_CATEGORIES } from "@/store/actions/goods.actions"; // GET_DATA
+
+import { GET_CATEGORIES, GET_DATA } from "@/store/actions/goods.actions"; // GET_DATA
 
 export default {
   name: 'GoodsList',
@@ -16,7 +16,7 @@ export default {
   },
   async created() {
     await this.$store.dispatch(GET_CATEGORIES);
-    // await this.$store.dispatch(GET_DATA);
+    await this.$store.dispatch(GET_DATA);
   }
 }
 </script>

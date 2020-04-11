@@ -1,8 +1,8 @@
 export const fixedExchangeRate = (price, exchangeRate, fractionDigits = 2) => +(price * exchangeRate).toFixed(fractionDigits);
 
-export function sortGoodsWithCategories({goodsData, categories, exchangeRate, goodsPricesBuffer}) {
+export function sortGoodsWithCategories({goodsData, categories, exchangeRate, pricesBuffer}) {
   const actualData = [];
-  const cloneGoodsPricesBuffer = {...goodsPricesBuffer};
+  const clonePricesBuffer = {...pricesBuffer};
 
   for (const item of goodsData) {
 
@@ -12,8 +12,8 @@ export function sortGoodsWithCategories({goodsData, categories, exchangeRate, go
 
     actualData[categoryName] = actualData[categoryName] || [];
 
-    const previousPrice = cloneGoodsPricesBuffer[goodsId];
-    cloneGoodsPricesBuffer[goodsId] = fixedExchangeRate(price, exchangeRate);
+    const previousPrice = clonePricesBuffer[goodsId];
+    clonePricesBuffer[goodsId] = fixedExchangeRate(price, exchangeRate);
 
     actualData[categoryName].push({
       price: fixedExchangeRate(price, exchangeRate),
@@ -26,6 +26,6 @@ export function sortGoodsWithCategories({goodsData, categories, exchangeRate, go
   }
   return {
     actualData,
-    cloneGoodsPricesBuffer
+    clonePricesBuffer
   };
 }
