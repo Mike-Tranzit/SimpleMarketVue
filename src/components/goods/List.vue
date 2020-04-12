@@ -4,7 +4,7 @@
             <div class="products-group" v-for="(goods, index) in goodsData" :key="index">
                 <div class="products-group__title">{{index}}</div>
                 <div class="products-group__item" v-for="product of goods" :key="product.goodsId"
-                     v-on:click="add(product, index)">
+                     v-on:click="$refs.cart.add(product, index)">
                     <div class="products-group__item-name">{{product.goodsName}} ({{product.availableCount}})</div>
                     <div class="products-group__item-price"
                          v-priceUpdateChecker="{price:product.price, previousPrice: product.previousPrice}">
@@ -13,7 +13,7 @@
                 </div>
             </div>
         </div>
-        <Cart/>
+        <Cart ref="cart"/>
     </div>
 </template>
 
@@ -21,7 +21,7 @@
     import Cart from "./Cart.vue";
     import {mapGetters} from 'vuex';
     import {GET_CATEGORIES, GET_DATA} from "@/store/actions/goods.actions";
-    import {PriceFieldColors} from '@/utils/goods.utils';
+    import {PriceFieldColors} from '@/utils/vaiables';
 
     export default {
         name: 'GoodsList',
@@ -54,7 +54,7 @@
         async created() {
             await this.$store.dispatch(GET_CATEGORIES);
             await this.$store.dispatch(GET_DATA);
-        },
+        }
     }
 </script>
 <style scoped>

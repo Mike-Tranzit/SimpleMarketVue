@@ -1,5 +1,5 @@
 <template>
-    <div class="box-wrapper">
+    <div class="box-wrapper" v-if="cartIsNotEmpty">
         <div class="box-inner">
             <div>
                 <div class="box-inner__name box-inner__title">Наименование товара и описание</div>
@@ -8,38 +8,52 @@
                 <div class="box-inner__action box-inner__title"></div>
             </div>
 
-            <div class="box-inner__body">
-                <div class="box-inner__name">1</div>
-                <div class="box-inner__count"><input class="box-inner__count-input" type="text" value="1"> шт</div>
-                <div class="box-inner__price">1 руб./шт</div>
-                <div class="box-inner__action"><a href="#">Удалить</a></div>
-            </div>
-
-            <div class="box-inner__body">
-                <div class="box-inner__name">1</div>
-                <div class="box-inner__count"><input class="box-inner__count-input" type="text" value="1"> шт</div>
-                <div class="box-inner__price">1 руб./шт</div>
-                <div class="box-inner__action"><a href="#">Удалить</a></div>
-            </div>
-
-            <div class="box-inner__body">
-                <div class="box-inner__name">1</div>
-                <div class="box-inner__count"><input class="box-inner__count-input" type="text" value="1"> шт</div>
-                <div class="box-inner__price">1 руб./шт</div>
+            <div class="box-inner__body" v-for="(data, index) in cartData" :key="index">
+                <div class="box-inner__name">{{data.goodsName}}</div>
+                <div class="box-inner__count"><input class="box-inner__count-input" type="text" v-model="data.count"> шт</div>
+                <div class="box-inner__price">{{data.price}} руб./шт</div>
                 <div class="box-inner__action"><a href="#">Удалить</a></div>
             </div>
         </div>
 
         <div class="total-price">
-            <div>Общая стоимость <span>0 руб.</span></div>
+            <div>Общая стоимость <span>{{totalAmount}} руб.</span></div>
         </div>
     </div>
 </template>
 
 <script>
+    import {mapGetters} from 'vuex';
+    import {ADD_TO_CART} from "@/store/actions/goods.actions";
+
     export default {
         name: 'Cart',
         computed: {
+            ...mapGetters({
+                cartData: 'getCartData'
+            }),
+            cartIsNotEmpty() {
+              return this.cartData.length > 0;
+            },
+            totalAmount() {
+                const totalAmount = this.cartData.reduce((acc, current) => {
+                    return acc + (current.price * +current.count);
+                } , 0);
+                const fractionDigits = 2;
+                return +totalAmount.toFixed(fractionDigits);
+            }
+        },
+        methods: {
+            add(product, index) {
+                const { availableCount } = product;
+                const productIsAvailable = availableCount > 0;
+                if (productIsAvailable) {
+                    this.$store.dispatch(ADD_TO_CART, {
+                        groupName: index,
+                        product
+                    });
+                }
+            }
         }
     }
 </script>
