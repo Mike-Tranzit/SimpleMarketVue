@@ -7,15 +7,12 @@ import {sortGoodsWithCategories} from "@/utils/goods.utils";
 
 export default {
     state: {
-        goods: {
-            actualData: [],
-            pricesBuffer: {}
-        },
-        categories: [],
+        goods: {},
+        categories: {},
         cart: []
     },
     getters: {
-        getData: state => state.data,
+        getGoodsData: state => state.goods,
         getCart: state => state.cart,
     },
     actions: {
@@ -43,18 +40,16 @@ export default {
     },
     mutations: {
         [SET_CATEGORIES]: (state, data) => {
-            Vue.set(state, 'categories',  new CategoriesActionsHandler(data));
+            state.categories = data;
         },
         [UPDATE_DATA]: (state, {exchangeRate, goods}) => {
             const payload = {
                 goodsData: goods,
-                categories: state.categories,
+                categories: new CategoriesActionsHandler({...state.categories}),
                 exchangeRate: exchangeRate,
-                goodsPricesBuffer: []
             };
-            const {actualData, pricesBuffer} = sortGoodsWithCategories(payload, state.goods.pricesBuffer);
-            state.goods.actualData = actualData;
-            state.goods.pricesBuffer = pricesBuffer;
+            const actualData = sortGoodsWithCategories(payload);
+            state.goods = {...actualData};
         }
     }
 }

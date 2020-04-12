@@ -10,6 +10,7 @@ async function withPolling(callback, interval) {
     const observableData = Vue.observable({data});
 
     Vue.prototype.$goodsList = observableData;
+
     const poll = () => {
         setTimeout(async () => {
             observableData.data = {...(await callback())};

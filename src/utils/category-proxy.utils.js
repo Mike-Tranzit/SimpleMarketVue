@@ -13,7 +13,6 @@ export const CategoriesActionsHandler = new Proxy(Array, {
                             }
                             return cache[id];
                         };
-                        break;
                     }
                     default: {
                         return targetArray[prop];
