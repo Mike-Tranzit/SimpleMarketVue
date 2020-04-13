@@ -1,7 +1,7 @@
-import {findElement, findCb} from "@/utils/custom.utils";
+import {findElement, findCb, getProperty} from "@/utils/custom.utils";
 import {ProductCountActionEnum} from "./vaiables";
 
-export default class Cart {
+export class Cart {
 
     constructor(product, {cartState, goodsState}) {
         this.product = product;
@@ -15,7 +15,7 @@ export default class Cart {
         this.existingShoppingItem = existingShoppingItem || this.addInitValueToCart();
     }
 
-    get INIT_COUNT_IN_SHOPPING_CARD () {
+    get INIT_COUNT_IN_SHOPPING_CARD() {
         return 0;
     }
 
@@ -63,5 +63,51 @@ export default class Cart {
 
     deleteProductFromCart(index) {
         this.cartState.splice(index, 1);
+    }
+}
+
+export class CartPollingUpdater {
+    constructor({cartState, goodsState, updateCart}) {
+        this.cartState = [...cartState];
+        this.goodsState = {...goodsState};
+        this.updateCart = updateCart;
+    }
+
+    cartIsNotEmpty() {
+        return this.updateCart && this.cartState.length > 0;
+    }
+
+    checkDiffCartAndGoodsList() {
+
+        if (!this.cartIsNotEmpty()) {
+            return false;
+        }
+
+        for (const index of Object.keys(this.cartState)) {
+            const itemOfCart = this.cartState[index];
+            const propertyName = getProperty(itemOfCart, 'groupName');
+            const item = findElement(this.goodsState[propertyName], findCb(itemOfCart, 'goodsId'));
+
+            if (item) {
+                const exceededLimit = itemOfCart.count > item.availableCount;
+                if (exceededLimit) {
+                    itemOfCart.count = item.availableCount;
+                } else {
+                    item.availableCount = item.availableCount - itemOfCart.count;
+                }
+                itemOfCart.price = item.price;
+            } else {
+                this.cartState.splice(index, 1);
+            }
+        }
+
+        return true;
+    }
+
+    get newStates() {
+        return {
+            newCartState: this.cartState,
+            newGoodsState: this.goodsState
+        }
     }
 }

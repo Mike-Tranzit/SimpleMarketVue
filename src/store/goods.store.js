@@ -7,7 +7,7 @@ import {
     SET_CATEGORIES,
     UPDATE_CART,
     UPDATE_DATA,
-    CHECK_CART_DATA
+    UPDATE_ALL
 } from './actions/goods.actions';
 
 import goodsService from "@/services/goods.service";
@@ -15,8 +15,7 @@ import currencyService from "@/services/currency.service";
 
 import {CategoriesActionsHandler} from "@/utils/category-proxy.utils";
 import {sortGoodsWithCategories} from "@/utils/goods.utils";
-import {getProperty, findElement, findCb} from "@/utils/custom.utils";
-import Cart from "@/utils/cart.utils";
+import {Cart, CartPollingUpdater} from "@/utils/cart.utils";
 import {ProductCountActionEnum} from "@/utils/vaiables";
 
 
@@ -41,82 +40,80 @@ export default {
             new Vue({
                 watch: {
                     '$goodsList.data'(data) {
-                        dispatch(INIT_DATA, { data, updateCart: true });
+                        dispatch(INIT_DATA, {data, updateCart: true});
                     }
                 }
             });
-            dispatch(INIT_DATA, data);
+            dispatch(INIT_DATA, {data, updateCart: false});
         },
-        [INIT_DATA]: async ({dispatch, commit}, {data, updateCart = false}) => {
+        [INIT_DATA]: async ({dispatch, commit}, {data: {data}, updateCart}) => {
             const exchangeRate = await currencyService.actualDollarExchangeRate();
             const {Value: {Goods: goods = []}} = data;
-            await commit(INIT_DATA, {exchangeRate, goods, commit, updateCart});
+            const stateActions = {commit, dispatch};
+            await commit(INIT_DATA, {exchangeRate, goods, updateCart, stateActions});
         },
-        [UPDATE_CART]({commit, state}, {product, groupName}) {
+        [UPDATE_CART]({dispatch, state}, {product, groupName}) {
             const cart = new Cart({...product, groupName}, {
                 cartState: state.cart,
                 goodsState: state.goods
             });
+
             cart.setInitCartPosition();
             cart.increaseProductCount();
             cart.goodsCountActions(ProductCountActionEnum.DECREASE);
-            commit(UPDATE_CART, {newState: cart.state.cartState});
-            commit(UPDATE_DATA, {newState: cart.state.goodsState});
+
+            dispatch(UPDATE_ALL, {
+                cartState: cart.state.cartState,
+                goodsState: cart.state.goodsState
+            });
         },
-        [DELETE_FROM_CART]({commit, state}, index) {
+        [DELETE_FROM_CART]({dispatch, state}, index) {
             const product = state.cart[index];
             if (product) {
                 const cart = new Cart({...product}, {
                     cartState: state.cart,
                     goodsState: state.goods
                 });
+
                 cart.goodsCountActions(ProductCountActionEnum.INCREASE);
                 cart.deleteProductFromCart(index);
-                commit(UPDATE_CART, {newState: cart.state.cartState});
-                commit(UPDATE_DATA, {newState: cart.state.goodsState});
+
+                dispatch(UPDATE_ALL, {
+                    cartState: cart.state.cartState,
+                    goodsState: cart.state.goodsState
+                });
             }
+        },
+        [UPDATE_ALL]: ({commit}, {cartState, goodsState}) => {
+            commit(UPDATE_CART, {newState: cartState});
+            commit(UPDATE_DATA, {newState: goodsState});
         }
     },
     mutations: {
         [SET_CATEGORIES]: (state, data) => {
             state.categories = data;
         },
-        [INIT_DATA]: (state, {exchangeRate, goods, commit, updateCart = false}) => {
+        [INIT_DATA]: (state, {exchangeRate, goods, updateCart, stateActions}) => {
             const payload = {
                 goodsData: goods,
                 categories: new CategoriesActionsHandler({...state.categories}),
                 exchangeRate: exchangeRate,
             };
-            const newState = sortGoodsWithCategories(payload);
+            let newState = sortGoodsWithCategories(payload);
 
-            commit(UPDATE_DATA, {newState});
-        },
-        [CHECK_CART_DATA]: (state, {dispatch, commit}) => {
-            if(state.cart.length === 0) {
-                return;
+            const cartPollingUpdater = new CartPollingUpdater({
+                cartState: state.cart,
+                goodsState: newState,
+                updateCart
+            });
+
+            if (cartPollingUpdater.checkDiffCartAndGoodsList()) {
+                const {newCartState, newGoodsState} = cartPollingUpdater.newStates;
+                stateActions.commit(UPDATE_CART, {newState: newCartState});
+                newState = {...newGoodsState}
             }
-            let cloneCartState = [...state.cart];
-            let cloneGoodsState = {...state.goods};
-            for (const key of Object.keys(cloneCartState)) {
 
-                const itemOfCart = cloneCartState[key]; console.log(itemOfCart);
-                const propertyName = getProperty(itemOfCart, 'groupName');
-                const item = findElement(cloneGoodsState[propertyName], findCb(itemOfCart, 'goodsId'));
-
-                if (item) {
-                    const exceededLimit = itemOfCart.count > item.availableCount;
-                    if (exceededLimit) {
-                        itemOfCart.count = item.availableCount;
-                    } else {
-                        item.availableCount = item.availableCount - itemOfCart.count;
-                    }
-                    itemOfCart.price = item.price;
-                } else {
-                    dispatch(DELETE_FROM_CART, key);
-                }
-            }
-            commit(UPDATE_CART, {newState: cloneCartState});
-            commit(UPDATE_DATA, {newState: cloneGoodsState});
+            stateActions.commit(UPDATE_DATA, {newState});
         },
         [UPDATE_DATA]: (state, {newState}) => {
             state.goods = {...newState};
