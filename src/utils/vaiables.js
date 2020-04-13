@@ -1,4 +1,5 @@
 
+/*  Change available count of product */
 export let ProductCountActionEnum;
 (function (ProductCountActionEnum) {
     ProductCountActionEnum["INCREASE"] = "Increase";

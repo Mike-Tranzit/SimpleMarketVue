@@ -3,9 +3,8 @@ import {ProductCountActionEnum} from "./vaiables";
 
 export default class Cart {
 
-    constructor(product, groupName, {cartState, goodsState}) {
+    constructor(product, {cartState, goodsState}) {
         this.product = product;
-        this.groupName = groupName;
         this.cartState = [...cartState];
         this.goodsState = {...goodsState};
         this.existingShoppingItem = {};
@@ -32,13 +31,13 @@ export default class Cart {
     }
 
     addInitValueToCart() {
-        const {goodsId, price, goodsName} = this.product;
+        const {goodsId, price, goodsName, groupName} = this.product;
         const initBoxProductState = {
             goodsId,
             price,
             count: this.INIT_COUNT_IN_SHOPPING_CARD,
             goodsName,
-            groupName: this.groupName
+            groupName
         };
         this.cartState.push(initBoxProductState);
         return initBoxProductState;
@@ -46,7 +45,7 @@ export default class Cart {
 
     goodsCountActions(action) {
         const cb = product => product.goodsId === this.product.goodsId;
-        const item = findElement(this.goodsState[this.groupName], cb);
+        const item = findElement(this.goodsState[this.product.groupName], cb);
         if (item) {
             switch (action) {
                 case ProductCountActionEnum.INCREASE: {
@@ -60,5 +59,9 @@ export default class Cart {
                 default:
             }
         }
+    }
+
+    deleteProductFromCart(index) {
+        this.cartState.splice(index, 1);
     }
 }

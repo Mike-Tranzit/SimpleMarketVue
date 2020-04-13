@@ -8,11 +8,11 @@
                 <div class="box-inner__action box-inner__title"></div>
             </div>
 
-            <div class="box-inner__body" v-for="(data, index) in cartData" :key="index">
-                <div class="box-inner__name">{{data.goodsName}}</div>
-                <div class="box-inner__count"><input class="box-inner__count-input" type="text" v-model="data.count"> шт</div>
-                <div class="box-inner__price">{{data.price}} руб./шт</div>
-                <div class="box-inner__action"><a href="#">Удалить</a></div>
+            <div class="box-inner__body" v-for="(product, index) in cartData" :key="index">
+                <div class="box-inner__name">{{product.goodsName}}</div>
+                <div class="box-inner__count"><input class="box-inner__count-input" type="text" v-model="product.count"> шт</div>
+                <div class="box-inner__price">{{product.price}} руб./шт</div>
+                <div class="box-inner__action"><a href="#" v-on:click.prevent="deleteProduct(index)">Удалить</a></div>
             </div>
         </div>
 
@@ -24,7 +24,7 @@
 
 <script>
     import {mapGetters} from 'vuex';
-    import {ADD_TO_CART} from "@/store/actions/goods.actions";
+    import {UPDATE_CART, DELETE_FROM_CART} from "@/store/actions/goods.actions";
 
     export default {
         name: 'Cart',
@@ -44,15 +44,18 @@
             }
         },
         methods: {
-            add(product, index) {
+            addProduct(product, index) {
                 const { availableCount } = product;
                 const productIsAvailable = availableCount > 0;
                 if (productIsAvailable) {
-                    this.$store.dispatch(ADD_TO_CART, {
+                    this.$store.dispatch(UPDATE_CART, {
                         groupName: index,
                         product
                     });
                 }
+            },
+            deleteProduct(index) {
+                this.$store.dispatch(DELETE_FROM_CART, index);
             }
         }
     }

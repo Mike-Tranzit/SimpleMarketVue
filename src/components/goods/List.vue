@@ -4,7 +4,7 @@
             <div class="products-group" v-for="(goods, index) in goodsData" :key="index">
                 <div class="products-group__title">{{index}}</div>
                 <div class="products-group__item" v-for="product of goods" :key="product.goodsId"
-                     v-on:click="$refs.cart.add(product, index)">
+                     v-on:click="$refs.cart.addProduct(product, index)">
                     <div class="products-group__item-name">{{product.goodsName}} ({{product.availableCount}})</div>
                     <div class="products-group__item-price"
                          v-priceUpdateChecker="{price:product.price, previousPrice: product.previousPrice}">
