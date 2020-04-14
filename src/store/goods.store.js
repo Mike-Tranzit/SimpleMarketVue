@@ -14,9 +14,9 @@ import goodsService from "@/services/goods.service";
 import currencyService from "@/services/currency.service";
 
 import {CategoriesActionsHandler} from "@/utils/category-proxy.utils";
-import {sortGoodsWithCategories} from "@/utils/goods.utils";
-import {Cart, CartPollingUpdater} from "@/utils/cart.utils";
-import {ProductCountActionEnum} from "@/utils/vaiables";
+import {sortGoodsWithCategories} from "@/utils/goods/goods.utils";
+import {Cart, CartPollingUpdater} from "@/utils/cart/cart.utils";
+import {ProductCountActionEnum} from "@/utils/variables";
 
 
 export default {

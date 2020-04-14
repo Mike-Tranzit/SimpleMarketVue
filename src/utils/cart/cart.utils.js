@@ -1,5 +1,5 @@
 import {findElement, findCb, getProperty} from "@/utils/custom.utils";
-import {ProductCountActionEnum} from "./vaiables";
+import {ProductCountActionEnum} from "../variables";
 
 export class Cart {
 

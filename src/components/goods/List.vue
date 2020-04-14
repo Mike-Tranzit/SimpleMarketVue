@@ -21,7 +21,7 @@
     import Cart from "./Cart.vue";
     import {mapGetters} from 'vuex';
     import {GET_CATEGORIES, GET_DATA} from "@/store/actions/goods.actions";
-    import {PriceFieldColors} from '@/utils/vaiables';
+    import {PriceFieldColors} from '@/utils/variables';
 
     export default {
         name: 'GoodsList',

@@ -14,3 +14,10 @@ export function findElement(elements, cb) {
 export function findCb(itemForComparison, field) {
   return (item) => item[field] === itemForComparison[field];
 }
+export const debounce = (delay, fn) => {
+  let inDebounce = null;
+  return args => {
+    clearTimeout(inDebounce);
+    inDebounce = setTimeout(() => fn(args), delay);
+  };
+};
