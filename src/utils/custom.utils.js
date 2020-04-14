@@ -16,8 +16,8 @@ export function findCb(itemForComparison, field) {
 }
 export const debounce = (delay, fn) => {
   let inDebounce = null;
-  return args => {
+  return () => {
     clearTimeout(inDebounce);
-    inDebounce = setTimeout(() => fn(args), delay);
+    inDebounce = setTimeout(() => fn(), delay);
   };
 };

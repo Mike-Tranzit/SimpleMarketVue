@@ -7,7 +7,7 @@
                      v-on:click="$refs.cart.addProduct(product, index)">
                     <div class="products-group__item-name">{{product.goodsName}} ({{product.availableCount}})</div>
                     <div class="products-group__item-price"
-                         v-priceUpdateChecker="{price:product.price, previousPrice: product.previousPrice}">
+                         v-priceUpdateChecker="{price:product.price}">
                         {{product.price}}
                     </div>
                 </div>
@@ -27,11 +27,6 @@
         name: 'GoodsList',
         components: {
             Cart
-        },
-        data() {
-            return {
-                data: {data: {}}
-            };
         },
         computed: {
             ...mapGetters({

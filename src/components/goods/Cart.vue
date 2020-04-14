@@ -10,7 +10,9 @@
 
             <div class="box-inner__body" v-for="(product, index) in cartData" :key="index">
                 <div class="box-inner__name">{{product.goodsName}}</div>
-                <div class="box-inner__count"><input class="box-inner__count-input" type="text" v-model="product.count"
+                <div class="box-inner__count"><input class="box-inner__count-input" type="text"
+                                                     v-countUpdateChecker="{count:product.count, goodsId: product.goodsId}"
+                                                     v-model="product.count"
                                                      @input="checkAvailableCount(product, $event)"> шт
                 </div>
                 <div class="box-inner__price">{{product.price}} руб./шт</div>
@@ -28,8 +30,10 @@
     import {mapGetters} from 'vuex';
     import {DELETE_FROM_CART, UPDATE_CART, UPDATE_DATA} from "@/store/actions/goods.actions";
     import {inputValueNotNull} from "@/utils/cart/validation/input-not-null.utils";
-    import {getProperty, findCb, findElement} from "@/utils/custom.utils"; //debounce,
+    import {debounce, getProperty, findCb, findElement} from "@/utils/custom.utils";
     import BoxOrderChecker from "@/utils/cart/validation/box-order-checker.utils";
+
+    const previousCount = new WeakSet();
     export default {
         name: 'Cart',
         computed: {
@@ -48,6 +52,16 @@
                 return +totalAmount.toFixed(fractionDigits);
             }
         },
+        directives: {
+            countUpdateChecker: {
+                update: function (el, binding) {
+                    const {value: {count: currentCount, goodsId}, oldValue: {count: oldCount}} = binding;
+                    if (currentCount !== oldCount) {
+                        previousCount[goodsId] = +oldCount;
+                    }
+                }
+            }
+        },
         methods: {
             addProduct(product, index) {
                 const {availableCount} = product;
@@ -62,30 +76,32 @@
             deleteProduct(index) {
                 this.$store.dispatch(DELETE_FROM_CART, index);
             },
-            checkAvailableCount(product, event) {console.log(product, event.target.value);
-              //  debounce(1000, () => {
+            checkAvailableCount(product, event) {
+                const CHANGE_DEBOUNCE = 10;
+                debounce(CHANGE_DEBOUNCE, () => {
                     const checker = this.countChecker;
-                    inputValueNotNull(checker, {product, event});
-              //  });
+                    const cloneProduct = {...product, ...{count: previousCount[product.goodsId]}};
+                    inputValueNotNull(checker, {cloneProduct, event});
+                });
             },
             countChecker(product, event) {
-                 const cloneGoodsStore = {...this.goodsData};
-                 const propertyName = getProperty(product, 'groupName');
-                 const productInGoodsList = findElement(cloneGoodsStore[propertyName], findCb(product, 'goodsId'));
+                const cloneGoodsStore = {...this.goodsData};
+                const propertyName = getProperty(product, 'groupName');
+                const productInGoodsList = findElement(cloneGoodsStore[propertyName], findCb(product, 'goodsId'));
 
-                 const payload = {
-                     productInGoodsList,
-                     product,
-                     element: event,
-                 };
+                const payload = {
+                    productInGoodsList,
+                    product,
+                    element: event,
+                };
 
-                 const model = new BoxOrderChecker(payload).convertAndSetParams();
-                 const actions = model.checkValueBecameLow() || model.checkValueExceededLimit() || model.setNewAvailableCount();
-                 if (actions) {
-                     this.$store.commit(UPDATE_DATA, {
-                         newState: cloneGoodsStore
-                     });
-                 }
+                const model = new BoxOrderChecker(payload).convertAndSetParams();
+                const actions = model.checkValueBecameLow() || model.checkValueExceededLimit() || model.setNewAvailableCount();
+                if (actions) {
+                    this.$store.commit(UPDATE_DATA, {
+                        newState: cloneGoodsStore
+                    });
+                }
             }
         }
     }
