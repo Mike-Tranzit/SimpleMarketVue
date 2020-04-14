@@ -11,9 +11,8 @@
             <div class="box-inner__body" v-for="(product, index) in cartData" :key="index">
                 <div class="box-inner__name">{{product.goodsName}}</div>
                 <div class="box-inner__count"><input class="box-inner__count-input" type="text"
-                                                     v-countUpdateChecker="{count:product.count, goodsId: product.goodsId}"
-                                                     v-model="product.count"
-                                                     @input="checkAvailableCount(product, $event)"> шт
+                                                     :value="product.count"
+                                                     v-on:keyup="checkAvailableCount(product, $event)"> шт
                 </div>
                 <div class="box-inner__price">{{product.price}} руб./шт</div>
                 <div class="box-inner__action"><a href="#" v-on:click.prevent="deleteProduct(index)">Удалить</a></div>
@@ -30,10 +29,9 @@
     import {mapGetters} from 'vuex';
     import {DELETE_FROM_CART, UPDATE_CART, UPDATE_DATA} from "@/store/actions/goods.actions";
     import {inputValueNotNull} from "@/utils/cart/validation/input-not-null.utils";
-    import {debounce, getProperty, findCb, findElement} from "@/utils/custom.utils";
+    import {debounce, findCb, findElement, getProperty} from "@/utils/custom.utils";
     import BoxOrderChecker from "@/utils/cart/validation/box-order-checker.utils";
 
-    const previousCount = new WeakSet();
     export default {
         name: 'Cart',
         computed: {
@@ -52,16 +50,6 @@
                 return +totalAmount.toFixed(fractionDigits);
             }
         },
-        directives: {
-            countUpdateChecker: {
-                update: function (el, binding) {
-                    const {value: {count: currentCount, goodsId}, oldValue: {count: oldCount}} = binding;
-                    if (currentCount !== oldCount) {
-                        previousCount[goodsId] = +oldCount;
-                    }
-                }
-            }
-        },
         methods: {
             addProduct(product, index) {
                 const {availableCount} = product;
@@ -77,12 +65,11 @@
                 this.$store.dispatch(DELETE_FROM_CART, index);
             },
             checkAvailableCount(product, event) {
-                const CHANGE_DEBOUNCE = 10;
+                const CHANGE_DEBOUNCE = 500;
                 debounce(CHANGE_DEBOUNCE, () => {
                     const checker = this.countChecker;
-                    const cloneProduct = {...product, ...{count: previousCount[product.goodsId]}};
-                    inputValueNotNull(checker, {cloneProduct, event});
-                });
+                    inputValueNotNull(checker, {product, event});
+                })();
             },
             countChecker(product, event) {
                 const cloneGoodsStore = {...this.goodsData};

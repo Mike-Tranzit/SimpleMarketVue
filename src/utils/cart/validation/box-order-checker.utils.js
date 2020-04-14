@@ -1,21 +1,21 @@
 export default class BoxOrderChecker {
   productInGoodsList;
-  productInBox;
+  product;
   element;
   inputValue;
   availableCount;
   productCount;
   availableCountToOrder;
 
-  constructor({productInGoodsList, productInBox, element}) {
+  constructor({productInGoodsList, product, element}) {
     this.productInGoodsList = productInGoodsList;
-    this.productInBox = productInBox;
+    this.product = product;
     this.element = element;
   }
 
   convertAndSetParams() {
     this.availableCount = this.productInGoodsList.availableCount;
-    this.productCount = +this.productInBox.count;
+    this.productCount = +this.product.count;
     this.inputValue = +this.element.value;
     this.availableCountToOrder = this.availableCount + this.productCount;
     return this;
@@ -37,7 +37,7 @@ export default class BoxOrderChecker {
     if (exceededLimit) {
       return false;
     }
-    this.element.value = String(this.availableCountToOrder);
+    this.element.value = this.availableCountToOrder;
     this.setNewValuesOfCounts(this.availableCountToOrder);
     return true;
   }
@@ -50,7 +50,7 @@ export default class BoxOrderChecker {
   }
 
   setNewValuesOfCounts(productInBoxCount, productCount) {
-    this.productInBox.count = productInBoxCount;
+    this.product.count = productInBoxCount;
     this.productInGoodsList.availableCount = productCount;
   }
 }

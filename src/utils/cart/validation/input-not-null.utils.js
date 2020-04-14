@@ -1,4 +1,4 @@
-export function inputValueNotNull( f, {cloneProduct: product, event}) {
+export function inputValueNotNull( f, {product, event}) {
         const element = event.target;
         const value = +element.value;
         if (Number.isNaN(value) || value === product.count) {
@@ -6,5 +6,5 @@ export function inputValueNotNull( f, {cloneProduct: product, event}) {
             element.value = newElementValue;
             return;
         }
-      //  f(product, element);
+        f(product, element);
 }
