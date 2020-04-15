@@ -8,6 +8,7 @@ export function getProperty(obj, key) {
 }
 
 export function findElement(elements, cb) {
+  if(!elements) return [];
   return elements.find(cb);
 }
 
