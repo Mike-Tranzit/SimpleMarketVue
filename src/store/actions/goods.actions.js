@@ -8,4 +8,3 @@ export const SET_CATEGORIES = "SET_CATEGORIES";
 export const INIT_DATA = "INIT_DATA";
 export const UPDATE_DATA = "UPDATE_DATA";
 export const UPDATE_CART = "UPDATE_CART";
-export const CHECK_CART_DATA = "CHECK_CART_DATA";
