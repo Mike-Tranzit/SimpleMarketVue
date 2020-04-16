@@ -22,3 +22,5 @@ export let PriceFieldColors;
     }
     PriceFieldColors = Object.freeze({...PriceFieldColors});
 })(PriceFieldColors || (PriceFieldColors = {}));
+
+export const POLLING_TIMEOUT = 15000;

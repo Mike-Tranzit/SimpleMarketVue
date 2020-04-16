@@ -28,6 +28,7 @@ export default class BoxOrderChecker {
     }
     const newProductInBoxCount = this.inputValue > 0 ? this.inputValue : '';
     const newAvailableCount = this.availableCount + (this.productCount - this.inputValue);
+
     this.setNewValuesOfCounts(newProductInBoxCount, newAvailableCount);
     return true;
   }
@@ -37,19 +38,19 @@ export default class BoxOrderChecker {
     if (exceededLimit) {
       return false;
     }
-    this.element.value = this.availableCountToOrder;
+    this.element.value = +this.availableCountToOrder;
     this.setNewValuesOfCounts(this.availableCountToOrder);
     return true;
   }
 
   setNewAvailableCount() {
     const countDiffValue = this.availableCountToOrder - this.inputValue;
-    const newAvailableCount = countDiffValue < 0 ? 0 : countDiffValue;
+    const newAvailableCount = countDiffValue < 0 || Number.isNaN(countDiffValue) ? 0 : countDiffValue;
     this.setNewValuesOfCounts(this.inputValue, newAvailableCount);
     return true;
   }
 
-  setNewValuesOfCounts(productInBoxCount, productCount) {
+  setNewValuesOfCounts(productInBoxCount, productCount = 0) {
     this.product.count = productInBoxCount;
     this.productInGoodsList.availableCount = productCount;
   }

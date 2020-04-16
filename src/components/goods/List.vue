@@ -37,6 +37,9 @@
             priceUpdateChecker: {
                 update: function (el, binding) {
                     const {value: {price: currentPrice}, oldValue: {price: previousPrice}} = binding;
+                    if(currentPrice === previousPrice) {
+                        return;
+                    }
                     if (currentPrice > previousPrice) {
                         PriceFieldColors.priceBecomeHigher(el);
                     } else {

@@ -65,7 +65,7 @@
                 this.$store.dispatch(DELETE_FROM_CART, index);
             },
             checkAvailableCount(product, event) {
-                const CHANGE_DEBOUNCE = 500;
+                const CHANGE_DEBOUNCE = 100;
                 debounce(CHANGE_DEBOUNCE, () => {
                     const checker = this.countChecker;
                     inputValueNotNull(checker, {product, event});
